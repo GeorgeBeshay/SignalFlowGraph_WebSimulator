@@ -47,7 +47,7 @@
 ## Designed & Implemented By
 - ***[Mariam Aziz](https://github.com/MariamAziz0)***
 - ***[David Michael](https://github.com/dave-nagib)***
-- ***[Patrick Georges](https://github.com/)***
+- ***[Patrick Georges](https://github.com/Patrick-Geo7)***
 - ***[Marshelino Maged](https://github.com/marshelino-maged)***
 - ***[George Beshay](https://github.com/GeorgeBeshay)***
 
