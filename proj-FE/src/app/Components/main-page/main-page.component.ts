@@ -17,6 +17,7 @@ export class MainPageComponent {
   private currentNodeNumber !: number;
   private edgesList: number[][] = [];
   private upDown: Boolean = true;
+  private routhArray: number[] = [];
   /* 
     [
     [ [to, weight], [to, weight], ..],
@@ -223,4 +224,71 @@ export class MainPageComponent {
     return this.edgesList.length - 1;
   }  
   // ------------- Separator -------------
+  generateOrder(){
+    var orderValue = document.getElementById('orderValue') as HTMLInputElement;
+    var value = Number(orderValue.value);
+    if(value < 0){
+      alert('Enter positive number');
+    }
+    else {
+      let orderGenerated = document.getElementById('orderGenerated') as HTMLDivElement;
+      orderGenerated.innerHTML = "";
+      for(let i=value;i>=0;i--){
+        let orderDiv = document.createElement('div');
+        let coeffInput = document.createElement('input');
+        coeffInput.type = 'number';
+        coeffInput.value = '0';
+        let orderText = document.createElement('p');
+        orderText.innerHTML = `S ` + `<sup>${this.numberToASCIICode(i)}</sup>`;
+        orderDiv.style.display = 'flex';
+        orderDiv.style.alignItems = 'center';
+        orderDiv.style.padding = '2px';
+        // orderDiv.style.margin = '5px';
+        orderDiv.style.justifyContent = 'space-between';
+
+        coeffInput.style.width = '70px';
+        coeffInput.style.marginRight = '5px';
+
+        orderText.style.padding = '2px';
+
+        if(i != 0){
+          orderText.appendChild(document.createTextNode("      +"));
+        }
+        else {
+          orderText.innerHTML = "";
+        }
+
+        orderDiv.appendChild(coeffInput);
+        orderDiv.appendChild(orderText);
+        orderGenerated.appendChild(orderDiv);
+      }
+    }
+  }
+
+  numberToASCIICode(num: Number) {
+    // Convert the number to a string
+    let str = num.toString();
+    let result = '';
+    
+    // Loop through each character in the string
+    for (let i = 0; i < str.length; i++) {
+      // Get the ASCII code for the current character
+      let code = str.charCodeAt(i);
+      // Add the ASCII code to the result string
+      result += `&#${code};`;
+    }
+    
+    // Return the result string
+    return result;
+  }
+
+  // ------------- Separator ------------
+  solveRouth(){
+    let orderGenerated = document.getElementById('orderGenerated') as HTMLDivElement;
+    this.routhArray = [];
+    for(let i=0;i<orderGenerated.children.length;i++){
+      this.routhArray.push(Number(((orderGenerated.children[i].children[0]) as HTMLInputElement).value));
+    }
+    console.log(this.routhArray);
+  }
 }

@@ -91,9 +91,18 @@ h1 {
     width: 16%;
 }
 
+
 .div3 #rhHolder .Generate:hover{
     opacity: 1;
 }
+
+.div3 #rhHolder #orderGenerated {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 15%;
+}
+
 input {
     outline: none;
     font-size: 20px;

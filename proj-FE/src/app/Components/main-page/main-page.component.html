@@ -25,7 +25,7 @@
             <!-- ------------- Separator ------------- -->
             <div id="rh">
                 <h2>RH - Criterion Section</h2>
-                <button>Solve RH</button>
+                <button (click)="solveRouth()">Solve RH</button>
                 <ul>
                     <li>Stability Check = False</li>
                     <li>Number of roots on the LHS = 4</li>
@@ -40,10 +40,10 @@
             <div id="rhHolder">
                 <div class="orderOfEquation">
                     <p>Order of Equation: </p>
-                    <input type="number"> 
-                    <button class="Generate">Generate</button>
+                    <input type="number" id="orderValue"> 
+                    <button class="Generate" (click)="generateOrder()">Generate</button>
                 </div>
-                
+                <div id="orderGenerated"></div>
             </div>
         </div>
         <div class="div4">
