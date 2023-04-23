@@ -1,3 +1,4 @@
+import { HtmlParser } from '@angular/compiler';
 import { Component } from '@angular/core';
 import Konva from 'konva';
 import { Layer } from 'konva/lib/Layer';
@@ -15,6 +16,7 @@ export class MainPageComponent {
   private rhSelected!: Boolean;
   private currentNodeNumber !: number;
   private edgesList: number[][] = [];
+  private upDown: Boolean = true;
   /* 
     [
     [ [to, weight], [to, weight], ..],
@@ -48,12 +50,18 @@ export class MainPageComponent {
     this.rhSelected = rhSelected;
     var toolbarSection = document.getElementById('toolbar') as HTMLDivElement;
     var rhSection = document.getElementById('rh') as HTMLDivElement;
+    var konvaHolder = document.getElementById('holder') as HTMLDivElement;
+    var rhHolder = document.getElementById('rhHolder') as HTMLDivElement;
     if(this.rhSelected){
       toolbarSection.style.display = 'none';
       rhSection.style.display = 'block';
+      konvaHolder.style.display = 'none';
+      rhHolder.style.display = 'block';
     } else {
       toolbarSection.style.display = 'block';
       rhSection.style.display = 'none';
+      konvaHolder.style.display = 'block';
+      rhHolder.style.display = 'none';
     }
   }
   // ------------- Separator -------------
@@ -118,20 +126,35 @@ export class MainPageComponent {
         x2 = thisExtender.myStage.getPointerPosition()!.x;
         y2 = thisExtender.myStage.getPointerPosition()!.y;
         i++;
-        thisExtender.createEdge(x1, y1, x2, y2, thisExtender.addEdge(start, terminal, '1'));
+        let isCurved = true;
+        if(Number(terminal) - Number(start) === 1){
+          isCurved = false;
+        }
+        thisExtender.createEdge(x1, y1, x2, y2, thisExtender.addEdge(start, terminal, '1'), isCurved);
       }
     });
   }
   // ------------- Separator -------------
-  createEdge(x1: number, y1: number, x2: number, y2: number, index: number){
+  createEdge(x1: number, y1: number, x2: number, y2: number, index: number, isCurved: Boolean){
     let thisExtender = this;
     const a = new Konva.Group({
       x: 0,
       y: 0,
     });
+    let x3 = x1, y3 = y1;
+    if(isCurved){
+      if(this.upDown){
+        y3 = y3 + (x2-x1)/3;
+      }
+      else {
+        y3 = y3 - (x2-x1)/3;
+      }
+      x3 = x3 + (x2-x1)/2;
+      this.upDown = !this.upDown;
+    }
     a.add(
       new Konva.Arrow({
-        points: [x1, y1, x2, y2],
+        points: [x1, y1, x3, y3, x2, y2],
         pointerLength: 10,
         pointerWidth: 10,
         fill: 'black',
@@ -144,7 +167,7 @@ export class MainPageComponent {
     var textNode = new Konva.Text({
       text: '1',
       x: x1 + (x2 - x1) / 2,
-      y: y1 + (y2 - y1) / 2,
+      y: y3,
       fontSize: 20,
     });
     textNode.on('dblclick dbltap', () => {
