@@ -1,34 +1,43 @@
 <div class="pageHolder">
     <div class="parent">
+
+
         <div class="div1">
             <h1>Signal Flow Graph - Simulator</h1>
         </div>
+
         <div class="div2">
-            <h2>Tool Bar</h2>
-            <button>Node</button>
-            <button>Branch</button>
-            <button>Undo</button>
-            <button>Redo</button>
+            <h2>
+                Options
+            </h2>
+            <button (click)="switchSection(false)">SFG Drawer</button>
+            <button (click)="switchSection(true)">RH - Criterion</button>
             <hr>
-            <h2>RH - Criterion Section</h2>
-            <button>Solve RH</button>
-            <ul>
-                <li>Stability Check = False</li>
-                <li>Number of roots on the LHS = 4</li>
-                <li>Number of roots on the RHS = 0</li>
-            </ul>
-            <hr>
+            <!-- ------------- Separator ------------- -->
+            <div id="toolbar">
+                <h2>Tool Bar</h2>
+                <button>Node</button>
+                <button (click)="createEdge()">Branch</button>
+                <button>Undo</button>
+                <button>Redo</button>
+                <hr>
+            </div>
+            <!-- ------------- Separator ------------- -->
+            <div id="rh">
+                <h2>RH - Criterion Section</h2>
+                <button>Solve RH</button>
+                <ul>
+                    <li>Stability Check = False</li>
+                    <li>Number of roots on the LHS = 4</li>
+                    <li>Number of roots on the RHS = 0</li>
+                </ul>
+                <hr>
+            </div>
+            <!-- ------------- Separator ------------- -->
         </div>
         <div class="div3" id="holder">
-            
         </div>
-        <div class="div4"> 
-            <p>
-                Enter characterstic equation to solve using RH - Criteria:
-            </p> 
-            <input type="text">
-        </div>
-        <div class="div5">
+        <div class="div4">
             Designed & Implemented By: Mariam Aziz, David Michael, Patrick Georges, Marshelino Maged & George Beshay. 
         </div>
     </div>
