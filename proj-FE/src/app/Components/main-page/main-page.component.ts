@@ -4,6 +4,8 @@ import Konva from 'konva';
 import { Layer } from 'konva/lib/Layer';
 import { Stage } from 'konva/lib/Stage';
 import {State} from "../../Interfaces/state";
+import {HttpClient} from "@angular/common/http";
+import {ServerCallerService} from "../../Services/server-caller.service";
 
 @Component({
   selector: 'app-main-page',
@@ -12,6 +14,7 @@ import {State} from "../../Interfaces/state";
 })
 export class MainPageComponent {
   // ------------- Separator -------------
+  private serverCaller: ServerCallerService;
   private myStage!: Stage;
   private board!: Layer;
   private rhSelected!: Boolean;
@@ -40,7 +43,9 @@ export class MainPageComponent {
    ]
    */
   // ------------- Separator -------------
-  constructor(){}
+  constructor(private http: HttpClient){
+    this.serverCaller = new ServerCallerService(this.http);
+  }
   ngOnInit(){
     this.rhSelected = false;
     this.switchSection(false);
@@ -376,7 +381,9 @@ export class MainPageComponent {
     console.log(this.routhArray);
   }
   // ------------- Separator ------------
-  solveSFG(){
+  async solveSFG(){
     console.log(this.edgesList);
+    let temp = (await this.serverCaller.getFPs());
+    console.log(temp);
   }
 }
