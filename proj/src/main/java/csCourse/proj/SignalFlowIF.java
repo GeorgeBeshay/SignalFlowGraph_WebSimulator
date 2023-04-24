@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public interface SignalFlowIF {
 
     //get all the forward paths with the gains
-    ArrayList<Pair<String,Double>> forwardPaths();
+    void forwardPaths(int s,int e);
 
     //get all the loops in the given graph with the gains
     ArrayList<Pair<String,Double>> loops();
