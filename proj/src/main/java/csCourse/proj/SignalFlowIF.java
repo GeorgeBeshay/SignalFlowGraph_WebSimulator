@@ -21,7 +21,7 @@ public interface SignalFlowIF {
                 []
      ]
      */
-    ArrayList<ArrayList<Pair<String,Double>>> NonTochingLoops();
+    ArrayList<ArrayList<Pair<String,Double>>> nonTouchingLoops();
 
     // index[0] is the over all delta
     ArrayList<Double> delta();
