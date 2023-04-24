@@ -1,10 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=Dosis&display=swap');
 :root {
-    --c1: #222831;
-    --c2: #393e46;
-    --c3: #f96d00;
-    --c4: #f2f2f2;
+    --c1: #1f1f1f;      /* Section bg */
+    --c2: #0a0a0a;     /* Page background */
+    --c3: #525252;     /* Buttons color */
+    --sectionMargin: 5px;
     font-family: 'Dosis';
 }
 * {

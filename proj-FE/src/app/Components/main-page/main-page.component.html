@@ -18,8 +18,10 @@
                 <h2>Tool Bar</h2>
                 <button (click)="createNode()">Node</button>
                 <button (click)="initEdge()">Branch</button>
-                <button>Undo</button>
-                <button>Redo</button>
+                <button (click)="undoState()">Undo</button>
+                <button (click)="redoState()">Redo</button>
+                <button (click)="clear()">Clear</button>
+                <button (click)="solveSFG()">Solve</button>
                 <hr>
             </div>
             <!-- ------------- Separator ------------- -->
@@ -40,14 +42,14 @@
             <div id="rhHolder">
                 <div class="orderOfEquation">
                     <p>Order of Equation: </p>
-                    <input type="number" id="orderValue"> 
+                    <input type="number" id="orderValue">
                     <button class="Generate" (click)="generateOrder()">Generate</button>
                 </div>
                 <div id="orderGenerated"></div>
             </div>
         </div>
         <div class="div4">
-            Designed & Implemented By: Mariam Aziz, David Michael, Patrick Georges, Marshelino Maged & George Beshay. 
+            Designed & Implemented By: Mariam Aziz, David Michael, Patrick Georges, Marshelino Maged & George Beshay.
         </div>
     </div>
 </div>

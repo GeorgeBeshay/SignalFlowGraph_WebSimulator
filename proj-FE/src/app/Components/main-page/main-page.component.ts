@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import Konva from 'konva';
 import { Layer } from 'konva/lib/Layer';
 import { Stage } from 'konva/lib/Stage';
+import {State} from "../../Interfaces/state";
 
 @Component({
   selector: 'app-main-page',
@@ -18,7 +19,18 @@ export class MainPageComponent {
   private edgesList: number[][] = [];
   private upDown: Boolean = true;
   private routhArray: number[] = [];
-  /* 
+  private undoStates: State[] = [];
+  private redoStates: State[] = [];
+  private currentState!: State;
+  // private currentState: {
+  //   edgesList: number[][],
+  //   board: Layer,
+  //   rhSelected: Boolean,
+  //   currentNodeNumber: number,
+  //   upDown: Boolean,
+  //   routArray: number[],
+  // };
+  /*
     [
     [ [to, weight], [to, weight], ..],
     [ [to, weight], [to, weight], ..],
@@ -28,9 +40,7 @@ export class MainPageComponent {
    ]
    */
   // ------------- Separator -------------
-  constructor(){
-    
-  }
+  constructor(){}
   ngOnInit(){
     this.rhSelected = false;
     this.switchSection(false);
@@ -45,6 +55,72 @@ export class MainPageComponent {
     this.board = new Konva.Layer();
     this.myStage.add(this.board);
     this.currentNodeNumber = 0;
+    this.edgesList = [];
+    this.routhArray = [];
+    this.upDown = true;
+    this.currentState = {
+      myStage: this.myStage,
+      edgesList: this.edgesList,
+      rhSelected: this.rhSelected,
+      currentNodeNumber: this.currentNodeNumber,
+      upDown: this.upDown,
+      routhArray: this.routhArray,
+    }
+    this.undoStates = [];
+    this.redoStates = [];
+    this.updateState();
+  }
+  // ------------- Separator -------------
+  updateState(){
+    this.undoStates.push(this.currentState);
+    this.currentState = {
+      myStage: this.myStage.toObject(),
+      // edgesList: this.edgesList,
+      edgesList: this.edgesList.map((x) => x.map((y) => y)),
+      rhSelected: this.rhSelected,
+      currentNodeNumber: this.currentNodeNumber,
+      upDown: this.upDown,
+      routhArray: this.routhArray,
+    }
+    this.redoStates = [];
+    console.log(this.undoStates);
+  }
+  // ------------- Separator -------------
+  updateStateFromObj(newState: State){
+    this.myStage = Konva.Node.create(newState.myStage, 'holder');
+    if(this.myStage.children != undefined)
+      this.board = this.myStage.children[0];
+    // this.edgesList = newState.edgesList;
+    this.edgesList = newState.edgesList.map((x) => x.map((y) => y));
+    this.rhSelected = newState.rhSelected;
+    this.currentNodeNumber = newState.currentNodeNumber;
+    this.upDown = newState.upDown;
+    this.routhArray = newState.routhArray
+  }
+  // ------------- Separator -------------
+  undoState(){
+    if(this.undoStates.length == 1)
+      return;
+    this.redoStates.push(this.currentState);
+    let tempState = this.undoStates.pop();
+    if(tempState != undefined)
+      this.currentState = tempState;
+    this.updateStateFromObj(this.currentState);
+    console.log(this.undoStates);
+  }
+  // ------------- Separator -------------
+  redoState(){
+    if(this.redoStates.length == 0)
+      return;
+    this.undoStates.push(this.currentState);
+    let tempState = this.redoStates.pop();
+    if(tempState != undefined)
+      this.currentState = tempState;
+    this.updateStateFromObj(this.currentState);
+  }
+  // ------------- Separator -------------
+  clear(){
+    this.ngOnInit();
   }
   // ------------- Separator -------------
   switchSection(rhSelected: Boolean){
@@ -95,8 +171,10 @@ export class MainPageComponent {
     );
     circle.addEventListener('dragend', () => {
       circle.setDraggable(false);
+      this.updateState();
     })
     this.board.add(circle);
+    // this.updateState();
   }
   // ------------- Separator -------------
   initEdge(){
@@ -208,11 +286,13 @@ export class MainPageComponent {
           document.body.removeChild(textarea);
           thisExtender.edgesList[index][2] = Number(textarea.value);
           console.log(thisExtender.edgesList);
+          thisExtender.updateState();
       });
     });
 
     a.add(textNode);
     this.board.add(a);
+    // this.updateState();
   }
   // ------------- Separator -------------
   addEdge(from: string, to: string, weight: string){
@@ -222,7 +302,7 @@ export class MainPageComponent {
     this.edgesList.push([from_, to_, weight_]);
     console.log(this.edgesList);
     return this.edgesList.length - 1;
-  }  
+  }
   // ------------- Separator -------------
   generateOrder(){
     var orderValue = document.getElementById('orderValue') as HTMLInputElement;
@@ -234,20 +314,24 @@ export class MainPageComponent {
       let orderGenerated = document.getElementById('orderGenerated') as HTMLDivElement;
       orderGenerated.innerHTML = "";
       for(let i=value;i>=0;i--){
+
         let orderDiv = document.createElement('div');
         let coeffInput = document.createElement('input');
         coeffInput.type = 'number';
         coeffInput.value = '0';
         let orderText = document.createElement('p');
         orderText.innerHTML = `S ` + `<sup>${this.numberToASCIICode(i)}</sup>`;
+
         orderDiv.style.display = 'flex';
         orderDiv.style.alignItems = 'center';
         orderDiv.style.padding = '2px';
-        // orderDiv.style.margin = '5px';
         orderDiv.style.justifyContent = 'space-between';
 
         coeffInput.style.width = '70px';
         coeffInput.style.marginRight = '5px';
+        coeffInput.style.outline = 'none';
+        coeffInput.style.padding = '5px';
+        coeffInput.style.fontSize = '15px';
 
         orderText.style.padding = '2px';
 
@@ -269,7 +353,7 @@ export class MainPageComponent {
     // Convert the number to a string
     let str = num.toString();
     let result = '';
-    
+
     // Loop through each character in the string
     for (let i = 0; i < str.length; i++) {
       // Get the ASCII code for the current character
@@ -277,7 +361,7 @@ export class MainPageComponent {
       // Add the ASCII code to the result string
       result += `&#${code};`;
     }
-    
+
     // Return the result string
     return result;
   }
@@ -290,5 +374,9 @@ export class MainPageComponent {
       this.routhArray.push(Number(((orderGenerated.children[i].children[0]) as HTMLInputElement).value));
     }
     console.log(this.routhArray);
+  }
+  // ------------- Separator ------------
+  solveSFG(){
+    console.log(this.edgesList);
   }
 }
