@@ -9,7 +9,7 @@ public class ControlSystem implements SignalFlowIF{
     int vertices;
     ArrayList<Edge>[] graph;
     ArrayList<Trail> paths; /** We will use paths[0] = null as a dummy value for ease of delta computation */
-    ArrayList<Trail> loops;
+    ArrayList<Trail> loops = new ArrayList<>();
     ArrayList<ArrayList<ArrayList<Integer>>> nonTouchingLoops; /** nonTouchingLoops[i] = the indices (in the loops array) of (i+2)-groups non-touching loops */
     ArrayList<Double> pathDeltas; /** pathDeltas[0] = overall delta, pathDeltas[i] = delta of paths[i] */
 
@@ -78,6 +78,10 @@ public class ControlSystem implements SignalFlowIF{
 
 
     Trail t = new Trail();
+
+    public void forwardPaths(){
+        forwardPaths(0,this.vertices-1);
+    }
     public void forwardPaths(int s,int e) {
         //TODO
         t.addNode(s);
@@ -100,9 +104,30 @@ public class ControlSystem implements SignalFlowIF{
         t.removeNode(s);
     }
 
-    public ArrayList<Pair<String, Double>> loops() {
+    public void loops(){
+        for(int i=1; i<this.vertices-1; i++){
+            loops(i,i);
+        }
+    }
+    public void loops(int s, int e) {
         //TODO
-        return null;
+
+            t.addNode(s);
+            for (Edge edge : this.graph[s]) {
+                if( (edge.to != e) && !(t.containsNode(edge.to)) ){
+                    t.multiplyGain(edge.weight);
+                    loops(edge.to, e);
+                    t.divideGain(edge.weight);
+                }
+                else if (edge.to == e) {
+                    t.multiplyGain(edge.weight);
+//                    System.out.println("the loop is " + t.getNodes().toString());
+//                    System.out.println("the gain is " + t.getGain());
+                    this.loops.add(t.clone());
+                    t.divideGain(edge.weight);
+                }
+            }
+            t.removeNode(s);
     }
 
     public ArrayList<ArrayList<Pair<String, Double>>> nonTouchingLoops() {

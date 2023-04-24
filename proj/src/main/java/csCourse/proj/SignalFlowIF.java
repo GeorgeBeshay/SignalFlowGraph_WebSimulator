@@ -11,7 +11,7 @@ public interface SignalFlowIF {
     void forwardPaths(int s,int e);
 
     //get all the loops in the given graph with the gains
-    ArrayList<Pair<String,Double>> loops();
+    void loops();
 
     /**
      [
