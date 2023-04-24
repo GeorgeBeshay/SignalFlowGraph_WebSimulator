@@ -1,0 +1,55 @@
+<div class="pageHolder">
+    <div class="parent">
+
+
+        <div class="div1">
+            <h1>Signal Flow Graph - Simulator</h1>
+        </div>
+
+        <div class="div2">
+            <h2>
+                Options
+            </h2>
+            <button (click)="switchSection(false)">SFG Drawer</button>
+            <button (click)="switchSection(true)">RH - Criterion</button>
+            <hr>
+            <!-- ------------- Separator ------------- -->
+            <div id="toolbar">
+                <h2>Tool Bar</h2>
+                <button (click)="createNode()">Node</button>
+                <button (click)="initEdge()">Branch</button>
+                <button (click)="undoState()">Undo</button>
+                <button (click)="redoState()">Redo</button>
+                <button (click)="clear()">Clear</button>
+                <button (click)="solveSFG()">Solve</button>
+                <hr>
+            </div>
+            <!-- ------------- Separator ------------- -->
+            <div id="rh">
+                <h2>RH - Criterion Section</h2>
+                <button (click)="solveRouth()">Solve RH</button>
+                <ul>
+                    <li>Stability Check = False</li>
+                    <li>Number of roots on the LHS = 4</li>
+                    <li>Number of roots on the RHS = 0</li>
+                </ul>
+                <hr>
+            </div>
+            <!-- ------------- Separator ------------- -->
+        </div>
+        <div class="div3">
+            <div id="holder"></div>
+            <div id="rhHolder">
+                <div class="orderOfEquation">
+                    <p>Order of Equation: </p>
+                    <input type="number" id="orderValue">
+                    <button class="Generate" (click)="generateOrder()">Generate</button>
+                </div>
+                <div id="orderGenerated"></div>
+            </div>
+        </div>
+        <div class="div4">
+            Designed & Implemented By: Mariam Aziz, David Michael, Patrick Georges, Marshelino Maged & George Beshay.
+        </div>
+    </div>
+</div>
