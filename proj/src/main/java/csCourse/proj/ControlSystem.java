@@ -202,6 +202,9 @@ public class ControlSystem implements SignalFlowIF{
             t.addNode(s);
             for (Edge edge : this.graph[s]) {
                 if( (edge.to != e) && !(t.containsNode(edge.to)) ){
+                    if(edge.to < s){
+                        return;
+                    }
                     t.multiplyGain(edge.weight);
                     loops(edge.to, e);
                     t.divideGain(edge.weight);
