@@ -6,14 +6,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ControlSystem implements SignalFlowIF{
+
+    int vertices;
     ArrayList<Edge>[] graph;
     ArrayList<Trail> paths; /** We will use paths[0] = null as a dummy value for ease of delta computation */
-    ArrayList<Trail> loops;
+    ArrayList<Trail> loops = new ArrayList<>();
     ArrayList<ArrayList<ArrayList<Integer>>> nonTouchingLoops; /** nonTouchingLoops[i] = the indices (in the loops array) of (i+2)-groups non-touching loops */
     ArrayList<Double> pathDeltas; /** pathDeltas[0] = overall delta, pathDeltas[i] = delta of paths[i] */
 
     // Constructor that initializes the system using the number of vertices & the edge list
     public ControlSystem(int vertices, double[][] edgeList){
+        this.vertices = vertices;
         // Graph adjacency list initialization
         int from,to;
         graph = new ArrayList[vertices];
@@ -29,7 +32,7 @@ public class ControlSystem implements SignalFlowIF{
         /** We could initialize the individual loops using getLoops method here */
         /** We could initialize the non-touching loops here */
         /** We could initialize the path deltas here */
-//        registerPaths();
+        registerPaths();
 //        registerLoops();
 //        nonTouchingLoops = getNonTouchingLoops(this.loops);
 //        registerDeltas();
@@ -37,7 +40,7 @@ public class ControlSystem implements SignalFlowIF{
 
 
     public void registerPaths(){
-        paths = new ArrayList<>();
+        paths = new ArrayList<Trail>();
         paths.add(null); // Dummy value to facilitate delta computation
         //TODO Fill up the paths field with forward paths (Trail objects)
     }
@@ -161,20 +164,57 @@ public class ControlSystem implements SignalFlowIF{
     }
 
 
+    Trail t = new Trail();
 
-
-
-
-
-
-    public ArrayList<Pair<String, Double>> forwardPaths() {
+    public void forwardPaths(){
+        forwardPaths(0,this.vertices-1);
+    }
+    public void forwardPaths(int s,int e) {
         //TODO
-        return null;
+        t.addNode(s);
+        for (Edge edge : this.graph[s]) {
+            if( (edge.to != e) && !(t.containsNode(edge.to)) ){
+                t.multiplyGain(edge.weight);
+                forwardPaths(edge.to, e);
+                t.divideGain(edge.weight);
+            }
+            else if (edge.to == e) {
+                t.addNode(e);
+                t.multiplyGain(edge.weight);
+//                System.out.println("the path is " + t.getNodes().toString());
+//                System.out.println("the gain is " + t.getGain());
+                this.paths.add(t.clone());
+                t.divideGain(edge.weight);
+                t.removeNode(e);
+            }
+        }
+        t.removeNode(s);
     }
 
-    public ArrayList<Pair<String, Double>> loops() {
+    public void loops(){
+        for(int i=1; i<this.vertices-1; i++){
+            loops(i,i);
+        }
+    }
+    public void loops(int s, int e) {
         //TODO
-        return null;
+
+            t.addNode(s);
+            for (Edge edge : this.graph[s]) {
+                if( (edge.to != e) && !(t.containsNode(edge.to)) ){
+                    t.multiplyGain(edge.weight);
+                    loops(edge.to, e);
+                    t.divideGain(edge.weight);
+                }
+                else if (edge.to == e) {
+                    t.multiplyGain(edge.weight);
+//                    System.out.println("the loop is " + t.getNodes().toString());
+//                    System.out.println("the gain is " + t.getGain());
+                    this.loops.add(t.clone());
+                    t.divideGain(edge.weight);
+                }
+            }
+            t.removeNode(s);
     }
 
     public ArrayList<ArrayList<Pair<String, Double>>> nonTouchingLoops() {
