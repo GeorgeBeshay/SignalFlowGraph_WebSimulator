@@ -95,8 +95,8 @@ public class ControlSystem implements SignalFlowIF{
             else if (edge.to == e) {
                 if(checkIfExist(t.getNodes().toString())){continue;}
                 t.multiplyGain(edge.weight);
-                    System.out.println("the loop is " + t.getNodes().toString());
-                    System.out.println("the gain is " + t.getGain());
+//                    System.out.println("the loop is " + t.getNodes().toString());
+//                    System.out.println("the gain is " + t.getGain());
                 this.loops.add(t.clone());
                 this.loopsStrings.add(t.getNodes().toString());
                 t.divideGain(edge.weight);
