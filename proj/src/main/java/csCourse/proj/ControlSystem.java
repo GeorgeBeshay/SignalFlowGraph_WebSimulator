@@ -67,22 +67,38 @@ public class ControlSystem implements SignalFlowIF{
         for(int i=1; i<this.vertices-1; i++){ recursiveLoops(i,i);}
     }
 
+    private ArrayList<String> loopsStrings = new ArrayList<>();
+    private boolean checkIfExist(String str){
+        boolean flag;
+        for (String exist: this.loopsStrings) {
+            flag = false;
+            if(exist.length()==str.length()){
+                for(int i=0;i<str.length(); i++){
+                    if(exist.indexOf(str.charAt(i)) < 0){
+                        flag = true;
+                        break;
+                    }
+                }
+                if(flag == false){return true;}
+            }
+        }
+        return false;
+    }
     public void recursiveLoops(int s, int e) {
         t.addNode(s);
         for (Edge edge : this.graph[s]) {
             if( (edge.to != e) && !(t.containsNode(edge.to)) ){
-                if(edge.to < s){
-                    continue;
-                }
                 t.multiplyGain(edge.weight);
                 recursiveLoops(edge.to, e);
                 t.divideGain(edge.weight);
             }
             else if (edge.to == e) {
+                if(checkIfExist(t.getNodes().toString())){continue;}
                 t.multiplyGain(edge.weight);
                     System.out.println("the loop is " + t.getNodes().toString());
                     System.out.println("the gain is " + t.getGain());
                 this.loops.add(t.clone());
+                this.loopsStrings.add(t.getNodes().toString());
                 t.divideGain(edge.weight);
             }
         }
@@ -287,12 +303,12 @@ public class ControlSystem implements SignalFlowIF{
                 {2,1,-1},
                 {3,4,4},
                 {4,3,-2},
-                {4,5,5},
-                {5,6,6},
-                {6,7,7},
-                {7,6,-4},
-                {7,1,8},
-                {5,8,10}
+                {4,7,5},
+                {7,6,6},
+                {6,5,7},
+                {5,6,-4},
+                {5,1,8},
+                {7,8,10}
         };
 
         ControlSystem sys = new ControlSystem(9, edges);
