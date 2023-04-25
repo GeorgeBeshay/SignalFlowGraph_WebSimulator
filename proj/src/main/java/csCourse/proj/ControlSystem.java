@@ -64,7 +64,7 @@ public class ControlSystem implements SignalFlowIF{
 
     public void registerLoops(){
         // Fill up the loops field with individual loops (Trail objects)
-        for(int i=1; i<this.vertices-1; i++) recursiveLoops(i,i);
+        for(int i=1; i<this.vertices-1; i++){ recursiveLoops(i,i);}
     }
 
     public void recursiveLoops(int s, int e) {
@@ -72,7 +72,7 @@ public class ControlSystem implements SignalFlowIF{
         for (Edge edge : this.graph[s]) {
             if( (edge.to != e) && !(t.containsNode(edge.to)) ){
                 if(edge.to < s){
-                    return;
+                    continue;
                 }
                 t.multiplyGain(edge.weight);
                 recursiveLoops(edge.to, e);
@@ -80,8 +80,8 @@ public class ControlSystem implements SignalFlowIF{
             }
             else if (edge.to == e) {
                 t.multiplyGain(edge.weight);
-//                    System.out.println("the loop is " + t.getNodes().toString());
-//                    System.out.println("the gain is " + t.getGain());
+                    System.out.println("the loop is " + t.getNodes().toString());
+                    System.out.println("the gain is " + t.getGain());
                 this.loops.add(t.clone());
                 t.divideGain(edge.weight);
             }
@@ -270,6 +270,7 @@ public class ControlSystem implements SignalFlowIF{
     }
 
     public static void main(String[] args) {
+        System.out.println("alooooooo");
         double[][] edges = {
                 {0,1,1},
                 {1,2,2},
@@ -277,14 +278,15 @@ public class ControlSystem implements SignalFlowIF{
                 {2,1,-1},
                 {3,4,4},
                 {4,3,-2},
-                {4,7,5},
-                {7,6,6},
-                {6,5,7},
-                {5,6,-4},
-                {5,1,8}
+                {4,5,5},
+                {5,6,6},
+                {6,7,7},
+                {7,6,-4},
+                {7,1,8},
+                {5,8,10}
         };
 
-        ControlSystem sys = new ControlSystem(8, edges);
+        ControlSystem sys = new ControlSystem(9, edges);
         ArrayList<Pair<String,Double>> tpaths = sys.forwardPaths();
         ArrayList<Pair<String,Double>> tloops = sys.loops();
         ArrayList<ArrayList<Pair<String,Double>>> ntl = sys.nonTouchingLoops();
