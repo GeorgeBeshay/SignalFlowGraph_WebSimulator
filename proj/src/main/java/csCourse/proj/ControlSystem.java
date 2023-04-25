@@ -98,8 +98,9 @@ public class ControlSystem implements SignalFlowIF{
     /** Method that takes a group of loops and returns the non-touching loop indices in that group */
     public ArrayList<ArrayList<ArrayList<Integer>>> getNonTouchingLoops(ArrayList<Trail> loops){
         ArrayList<ArrayList<ArrayList<Integer>>> NTL = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> pairs;
         boolean done;
-        int index = 0, i, j, k, size;
+        int index = 0, i, j, k, size, start;
         do{
             done = true;
             NTL.add(new ArrayList<>());
@@ -118,12 +119,15 @@ public class ControlSystem implements SignalFlowIF{
                 }
                 // Done adding all non-touching pairs
             }else{ // n non-touching loops, where n>2 and index+2 = n
-                ArrayList<ArrayList<Integer>> pairs = NTL.get(0);
+                pairs = NTL.get(0);
                 ArrayList<Integer> group;
                 // Loop over all groups of n-1 touching loop groups
                 for(i=0 ; i<NTL.get(index-1).size() ; i++){
                     group = NTL.get(index-1).get(i); // for example, group might be L0L1L4
-                    for(j=0 ; j<loops.size() ; j++){
+                    // Groups are always sorted, so start checking nodes from
+                    // right after the greatest (last) element of the group.
+                    start = group.get(group.size()-1);
+                    for(j=start+1 ; j<loops.size() ; j++){
                         // If there is an additional loop in the individual loop group
                         // that doesn't touch every loop in the group, we add it
                         // to the group and add the new group to the new n-groups.
@@ -153,10 +157,16 @@ public class ControlSystem implements SignalFlowIF{
         for(int i : group){
             noMatches = true;
             for (ArrayList<Integer> pair : pairs){
-                if (pair.contains(test) && pair.contains(i)){
+                // test is always greater than all numbers in the group, and pairs are sorted
+                // if there exists a pair, it would have to be i first then test.
+                if (pair.get(0) == i && pair.get(1) == test){
                     noMatches = false;
                     break;
                 }
+                // if we went past pairs starting with higher than i, then there
+                // is no more elements starting with i, which means we don't
+                // need to look further.
+                if (pair.get(0) > i) return false;
             }
             if(noMatches) return false;
         }
@@ -270,7 +280,6 @@ public class ControlSystem implements SignalFlowIF{
     }
 
     public static void main(String[] args) {
-        System.out.println("alooooooo");
         double[][] edges = {
                 {0,1,1},
                 {1,2,2},
@@ -302,7 +311,7 @@ public class ControlSystem implements SignalFlowIF{
         }
         System.out.println("Non touching loops:");
         for(int i=0 ; i< ntl.size() ; i++){
-            System.out.println("Groups of " + i+2 + "Non-touching loops:");
+            System.out.println("Groups of " + (i+2) + " Non-touching loops:");
             for(Pair<String,Double> group : ntl.get(i))
                 System.out.println(group.getKey() + " , Product = " + group.getValue());
         }
