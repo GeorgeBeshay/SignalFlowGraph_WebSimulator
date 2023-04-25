@@ -1,18 +1,17 @@
 package csCourse.proj;
-
-import org.springframework.data.util.Pair;
-
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ControlSystem implements SignalFlowIF{
 
-    int vertices;
-    ArrayList<Edge>[] graph;
-    ArrayList<Trail> paths; /** We will use paths[0] = null as a dummy value for ease of delta computation */
-    ArrayList<Trail> loops = new ArrayList<>();
-    ArrayList<ArrayList<ArrayList<Integer>>> nonTouchingLoops; /** nonTouchingLoops[i] = the indices (in the loops array) of (i+2)-groups non-touching loops */
-    ArrayList<Double> pathDeltas; /** pathDeltas[0] = overall delta, pathDeltas[i] = delta of paths[i] */
+    private int vertices;
+    private ArrayList<Edge>[] graph;
+    private ArrayList<Trail> paths = new ArrayList<>(); /** We will use paths[0] = null as a dummy value for ease of delta computation */
+    private ArrayList<Trail> loops = new ArrayList<>();
+    private ArrayList<ArrayList<ArrayList<Integer>>> nonTouchingLoops; /** nonTouchingLoops[i] = the indices (in the loops array) of (i+2)-groups non-touching loops */
+    private ArrayList<Double> pathDeltas; /** pathDeltas[0] = overall delta, pathDeltas[i] = delta of paths[i] */
+    private Trail t = new Trail();
 
     // Constructor that initializes the system using the number of vertices & the edge list
     public ControlSystem(int vertices, double[][] edgeList){
@@ -33,21 +32,61 @@ public class ControlSystem implements SignalFlowIF{
         /** We could initialize the non-touching loops here */
         /** We could initialize the path deltas here */
         registerPaths();
-//        registerLoops();
-//        nonTouchingLoops = getNonTouchingLoops(this.loops);
-//        registerDeltas();
+        registerLoops();
+        nonTouchingLoops = getNonTouchingLoops(this.loops);
+        registerDeltas();
     }
 
 
     public void registerPaths(){
-        paths = new ArrayList<Trail>();
         paths.add(null); // Dummy value to facilitate delta computation
-        //TODO Fill up the paths field with forward paths (Trail objects)
+        recursiveForwardPaths(0,this.vertices-1);
+    }
+
+    public void recursiveForwardPaths(int s,int e) {
+        t.addNode(s);
+        for (Edge edge : this.graph[s]) {
+            if( (edge.to != e) && !(t.containsNode(edge.to)) ){
+                t.multiplyGain(edge.weight);
+                recursiveForwardPaths(edge.to, e);
+                t.divideGain(edge.weight);
+            }
+            else if (edge.to == e) {
+                t.addNode(e);
+                t.multiplyGain(edge.weight);
+                this.paths.add(t.clone());
+                t.divideGain(edge.weight);
+                t.removeNode(e);
+            }
+        }
+        t.removeNode(s);
     }
 
     public void registerLoops(){
-        paths = new ArrayList<>();
-        //TODO Fill up the loops field with individual loops (Trail objects)
+        // Fill up the loops field with individual loops (Trail objects)
+        for(int i=1; i<this.vertices-1; i++) recursiveLoops(i,i);
+    }
+
+    public void recursiveLoops(int s, int e) {
+        t.addNode(s);
+        for (Edge edge : this.graph[s]) {
+            if( (edge.to != e) && !(t.containsNode(edge.to)) ){
+                if(edge.to < s){
+                    return;
+                }
+                t.multiplyGain(edge.weight);
+                recursiveLoops(edge.to, e);
+                t.divideGain(edge.weight);
+            }
+            else if (edge.to == e) {
+                t.multiplyGain(edge.weight);
+//                    System.out.println("the loop is " + t.getNodes().toString());
+//                    System.out.println("the gain is " + t.getGain());
+                this.loops.add(t.clone());
+                t.divideGain(edge.weight);
+            }
+        }
+        t.removeNode(s);
     }
 
     // We can pass two loops or a loop and a path here to see if they are touching or not.
@@ -66,7 +105,7 @@ public class ControlSystem implements SignalFlowIF{
             NTL.add(new ArrayList<>());
             k = 0;
             if (index == 0){ // n=2
-                size = loops().size();
+                size = loops.size();
                 // Add all non-touching pairs
                 for(i=0 ; i<size-1 ; i++){
                     for (j=i+1 ; j<size ; j++){
@@ -127,8 +166,9 @@ public class ControlSystem implements SignalFlowIF{
     public void registerDeltas(){
         pathDeltas = new ArrayList<>();
         double product, pathDelta;
-        ArrayList<Trail> loopsNotTouchingPath = loops;
-        ArrayList<ArrayList<ArrayList<Integer>>> nonTouchingLoopsOfPath = nonTouchingLoops;
+        boolean nonTouchingExists = (nonTouchingLoops != null);
+        ArrayList<Trail> loopsNotTouchingPath = new ArrayList<>(loops);
+        ArrayList<ArrayList<ArrayList<Integer>>> nonTouchingLoopsOfPath = (nonTouchingExists)? new ArrayList<>(nonTouchingLoops) : null;
         // Loop through paths list.
         for(Trail path : paths){
             pathDelta = 1;
@@ -139,23 +179,26 @@ public class ControlSystem implements SignalFlowIF{
                 for(Trail loop : loops){
                     if (!isTouching(path,loop)) loopsNotTouchingPath.add(loop);
                 }
-                nonTouchingLoopsOfPath = getNonTouchingLoops(loopsNotTouchingPath);
+                if(nonTouchingExists) nonTouchingLoopsOfPath = getNonTouchingLoops(loopsNotTouchingPath);
             }
-            // Add gains of individual loops
-            for (Trail loop : loopsNotTouchingPath) pathDelta += loop.getGain();
+            // Subtract gains of individual loops
+            for (Trail loop : loopsNotTouchingPath) pathDelta -= loop.getGain();
+            // If non-touching loops of the path do exist:
             // Add/subtract gain products of non-touching loops
-            for(int i=0 ; i<nonTouchingLoopsOfPath.size() ; i++){
-                if(i%2==0){
-                    for (ArrayList<Integer> nLoops : nonTouchingLoopsOfPath.get(i)) {
-                        product = 1;
-                        for (int loopIndex : nLoops) product *= loopsNotTouchingPath.get(loopIndex).getGain();
-                        pathDelta -= product;
-                    }
-                }else{
-                    for (ArrayList<Integer> nLoops : nonTouchingLoopsOfPath.get(i)) {
-                        product = 1;
-                        for (int loopIndex : nLoops) product *= loopsNotTouchingPath.get(loopIndex).getGain();
-                        pathDelta += product;
+            if (nonTouchingLoopsOfPath != null){
+                for (int i = 0; i < nonTouchingLoopsOfPath.size(); i++) {
+                    if (i % 2 == 0) {
+                        for (ArrayList<Integer> nLoops : nonTouchingLoopsOfPath.get(i)) {
+                            product = 1;
+                            for (int loopIndex : nLoops) product *= loopsNotTouchingPath.get(loopIndex).getGain();
+                            pathDelta += product;
+                        }
+                    } else {
+                        for (ArrayList<Integer> nLoops : nonTouchingLoopsOfPath.get(i)) {
+                            product = 1;
+                            for (int loopIndex : nLoops) product *= loopsNotTouchingPath.get(loopIndex).getGain();
+                            pathDelta -= product;
+                        }
                     }
                 }
             }
@@ -163,80 +206,105 @@ public class ControlSystem implements SignalFlowIF{
         }
     }
 
+    /** -------------------------------------------- INTERFACE METHODS -------------------------------------------- */
 
-    Trail t = new Trail();
-
-    public void forwardPaths(){
-        forwardPaths(0,this.vertices-1);
-    }
-    public void forwardPaths(int s,int e) {
-        //TODO
-        t.addNode(s);
-        for (Edge edge : this.graph[s]) {
-            if( (edge.to != e) && !(t.containsNode(edge.to)) ){
-                t.multiplyGain(edge.weight);
-                forwardPaths(edge.to, e);
-                t.divideGain(edge.weight);
-            }
-            else if (edge.to == e) {
-                t.addNode(e);
-                t.multiplyGain(edge.weight);
-//                System.out.println("the path is " + t.getNodes().toString());
-//                System.out.println("the gain is " + t.getGain());
-                this.paths.add(t.clone());
-                t.divideGain(edge.weight);
-                t.removeNode(e);
-            }
-        }
-        t.removeNode(s);
+    public ArrayList<Pair<String,Double>> forwardPaths(){
+        ArrayList<Pair<String,Double>> ret = new ArrayList<>();
+        for(int i=1 ; i<paths.size() ; i++)
+            ret.add(new Pair<>(
+                    "P" + i + ": " + paths.get(i).getNodes().toString(),
+                    paths.get(i).getGain()
+            ));
+        return ret;
     }
 
-    public void loops(){
-        for(int i=1; i<this.vertices-1; i++){
-            loops(i,i);
-        }
-    }
-    public void loops(int s, int e) {
-        //TODO
-
-            t.addNode(s);
-            for (Edge edge : this.graph[s]) {
-                if( (edge.to != e) && !(t.containsNode(edge.to)) ){
-                    if(edge.to < s){
-                        return;
-                    }
-                    t.multiplyGain(edge.weight);
-                    loops(edge.to, e);
-                    t.divideGain(edge.weight);
-                }
-                else if (edge.to == e) {
-                    t.multiplyGain(edge.weight);
-//                    System.out.println("the loop is " + t.getNodes().toString());
-//                    System.out.println("the gain is " + t.getGain());
-                    this.loops.add(t.clone());
-                    t.divideGain(edge.weight);
-                }
-            }
-            t.removeNode(s);
+    public ArrayList<Pair<String,Double>> loops(){
+        ArrayList<Pair<String,Double>> ret = new ArrayList<>();
+        for(int i=0 ; i<loops.size() ; i++)
+            ret.add(new Pair<>(
+                            "L" + i + ": " + loops.get(i).getNodes().toString(),
+                            loops.get(i).getGain()
+                    ));
+        return ret;
     }
 
     public ArrayList<ArrayList<Pair<String, Double>>> nonTouchingLoops() {
-        //TODO
-        return null;
+        if (nonTouchingLoops == null){
+            return new ArrayList<>();
+        }
+        // nonTouching[i] = a list of groups of i+2 non-touching loops.
+        ArrayList<ArrayList<Pair<String,Double>>> nonTouching = new ArrayList<>();
+        String group;
+        double product;
+        int index = 0;
+        for(ArrayList<ArrayList<Integer>> nLoopGroups : nonTouchingLoops){
+            nonTouching.add(new ArrayList<>());
+            for (ArrayList<Integer> nLoopGroup : nLoopGroups){
+                group = "";
+                product = 1;
+                for(int loopIndex : nLoopGroup){
+                    group += "L" + loopIndex;
+                    product *= loops.get(loopIndex).getGain();
+                }
+                nonTouching.get(index).add(new Pair<>(group, product));
+            }
+            index++;
+        }
+        return nonTouching;
     }
 
     public ArrayList<Double> delta() {
-        //TODO
-        return null;
+        return pathDeltas;
     }
 
-    public Double transferFunction() {
-        //TODO
-        return null;
+    public double transferFunction() {
+        double tf = 0;
+        for(int i=1 ; i<paths.size() ; i++)
+            tf += paths.get(i).getGain() * pathDeltas.get(i);
+        return tf / pathDeltas.get(0);
     }
 
     public int routh() {
         //TODO
         return 0;
+    }
+
+    public static void main(String[] args) {
+        double[][] edges = {
+                {0,1,1},
+                {1,2,2},
+                {2,3,3},
+                {2,1,-1},
+                {3,4,4},
+                {4,3,-2},
+                {4,7,5},
+                {7,6,6},
+                {6,5,7},
+                {5,6,-4},
+                {5,1,8}
+        };
+
+        ControlSystem sys = new ControlSystem(8, edges);
+        ArrayList<Pair<String,Double>> tpaths = sys.forwardPaths();
+        ArrayList<Pair<String,Double>> tloops = sys.loops();
+        ArrayList<ArrayList<Pair<String,Double>>> ntl = sys.nonTouchingLoops();
+        ArrayList<Double> tdeltas = sys.delta();
+        double tf = sys.transferFunction();
+        System.out.println("Forward paths:");
+        for(Pair<String,Double> path : tpaths){
+            System.out.println(path.getKey() + " , Gain = " + path.getValue());
+        }
+        System.out.println("Loops:");
+        for(Pair<String,Double> loop : tloops){
+            System.out.println(loop.getKey() + " , Gain = " + loop.getValue());
+        }
+        System.out.println("Non touching loops:");
+        for(int i=0 ; i< ntl.size() ; i++){
+            System.out.println("Groups of " + i+2 + "Non-touching loops:");
+            for(Pair<String,Double> group : ntl.get(i))
+                System.out.println(group.getKey() + " , Product = " + group.getValue());
+        }
+        System.out.println("Deltas: " + tdeltas);
+        System.out.println("Transfer function = " + tf);
     }
 }

@@ -1,17 +1,14 @@
 package csCourse.proj;
-
-import org.springframework.data.util.Pair;
-
 import java.awt.*;
 import java.util.ArrayList;
 
 public interface SignalFlowIF {
 
     //get all the forward paths with the gains
-    void forwardPaths(int s,int e);
+    ArrayList<Pair<String,Double>> forwardPaths();
 
     //get all the loops in the given graph with the gains
-    void loops();
+    ArrayList<Pair<String,Double>> loops();
 
     /**
      [
@@ -27,7 +24,7 @@ public interface SignalFlowIF {
     ArrayList<Double> delta();
 
     //calculate the over all transfer function
-    Double transferFunction();
+    double transferFunction();
 
     //return the number of the solutions in the right hand side
     // if the system is stable return zero
