@@ -95,9 +95,9 @@ public class ControlSystem implements SignalFlowIF{
             else if (edge.to == e) {
                 if(checkIfExist(t.getNodes().toString())){continue;}
                 t.multiplyGain(edge.weight);
-//                    System.out.println("the loop is " + t.getNodes().toString());
-//                    System.out.println("the gain is " + t.getGain());
+                t.addNode(e); // Add the node we got back to to the list
                 this.loops.add(t.clone());
+                t.getNodes().remove(t.getNodes().size()-1); // Remove the node again to ensure correctness
                 this.loopsStrings.add(t.getNodes().toString());
                 t.divideGain(edge.weight);
             }
@@ -298,20 +298,24 @@ public class ControlSystem implements SignalFlowIF{
     public static void main(String[] args) {
         double[][] edges = {
                 {0,1,1},
-                {1,2,2},
-                {2,3,3},
-                {2,1,-1},
-                {3,4,4},
-                {4,3,-2},
-                {4,7,5},
-                {7,6,6},
-                {6,5,7},
-                {5,6,-4},
-                {5,1,8},
-                {7,8,10}
+                {1,2,3.2},
+                {1,3,4.2},
+                {1,6,7.2},
+                {2,1,-2.3},
+                {2,3,4.3},
+                {3,2,-3.4},
+                {3,4,5.4},
+                {4,3,-4.5},
+                {4,5,6.5},
+                {5,4,-5.6},
+                {5,6,7.6},
+                {6,7,1},
+                {6,6,-7.7},
+                {6,4,-5.7},
+                {6,5,-6.7}
         };
 
-        ControlSystem sys = new ControlSystem(9, edges);
+        ControlSystem sys = new ControlSystem(8, edges);
         ArrayList<Pair<String,Double>> tpaths = sys.forwardPaths();
         ArrayList<Pair<String,Double>> tloops = sys.loops();
         ArrayList<ArrayList<Pair<String,Double>>> ntl = sys.nonTouchingLoops();
