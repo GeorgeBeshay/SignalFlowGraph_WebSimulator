@@ -10,6 +10,13 @@ export class ServerCallerService {
   private url = `http://localhost:${this.port}/server/`;
   constructor(private http: HttpClient) { }
 
+  async init_system(edgeList: number[][], numberOfNodes: number){
+    console.log(edgeList[0]);
+    return await firstValueFrom(
+      this.http.post<boolean>(this.url + `init/${numberOfNodes}`, [1.5, 2, 3, 4])
+    )
+  }
+
   async getFPs() {
     return await firstValueFrom(
       this.http.post<any[][]>(this.url + 'fps', null)

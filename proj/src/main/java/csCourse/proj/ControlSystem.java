@@ -1,8 +1,11 @@
 package csCourse.proj;
+import org.springframework.stereotype.Service;
+
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@Service
 public class ControlSystem implements SignalFlowIF{
 
     private int vertices;
@@ -13,6 +16,7 @@ public class ControlSystem implements SignalFlowIF{
     private ArrayList<Double> pathDeltas; /** pathDeltas[0] = overall delta, pathDeltas[i] = delta of paths[i] */
     private Trail t = new Trail();
 
+    public ControlSystem(){}
     // Constructor that initializes the system using the number of vertices & the edge list
     public ControlSystem(int vertices, double[][] edgeList){
         this.vertices = vertices;

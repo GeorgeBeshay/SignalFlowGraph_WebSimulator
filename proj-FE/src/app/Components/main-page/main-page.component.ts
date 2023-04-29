@@ -383,7 +383,6 @@ export class MainPageComponent {
   // ------------- Separator ------------
   async solveSFG(){
     console.log(this.edgesList);
-    let temp = (await this.serverCaller.getFPs());
-    console.log(temp);
+    console.log(await this.serverCaller.init_system(this.edgesList, this.currentNodeNumber))
   }
 }

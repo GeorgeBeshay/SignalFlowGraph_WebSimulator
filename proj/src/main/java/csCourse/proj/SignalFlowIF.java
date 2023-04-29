@@ -1,7 +1,10 @@
 package csCourse.proj;
+import org.springframework.stereotype.Service;
+
 import java.awt.*;
 import java.util.ArrayList;
 
+//@Service
 public interface SignalFlowIF {
 
     //get all the forward paths with the gains
