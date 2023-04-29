@@ -61,16 +61,14 @@ class Routh {
                 }
             }
 
-    if(rightPoles>0){
-        System.out.println("System is Unstable");
-    }
-    else{
-        System.out.println("System is Stable");
-    }
-    System.out.print("Number of right poles = ");
-    return rightPoles;
-
-
+        if(rightPoles>0){
+            System.out.println("System is Unstable");
+        }
+        else{
+            System.out.println("System is Stable");
+        }
+        System.out.print("Number of right poles = ");
+        return rightPoles;
     }
 
 }

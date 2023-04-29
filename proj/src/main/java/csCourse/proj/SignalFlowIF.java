@@ -28,5 +28,5 @@ public interface SignalFlowIF {
 
     //return the number of the solutions in the right hand side
     // if the system is stable return zero
-    int routh();
+    int routh(double[] coefficients);
 }
