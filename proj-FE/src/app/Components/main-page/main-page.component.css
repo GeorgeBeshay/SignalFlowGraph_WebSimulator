@@ -3,6 +3,7 @@ div.pageHolder {
     height: 100vh;
     background-color: var(--c2);
     color: white;
+    position: relative;
 }
 h1 {
     text-align: center;
@@ -124,4 +125,26 @@ input {
 }
 hr {
   margin-block: 5px;
+}
+div.result {
+    position: absolute;
+    left: 10%;
+    top: 10%;
+    background-color: rgba(0, 0, 0, 0.836);
+    width: 80%;
+    height: 80%;
+    z-index: -1;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 20px;
+    overflow: auto;
+}
+.resultsContainer .resultElement {
+    display: flex;
+}
+.resultsContainer .resultElement p{
+    margin-inline: 5px;
 }

@@ -29,9 +29,9 @@
                 <h2>RH - Criterion Section</h2>
                 <button (click)="solveRouth()">Solve RH</button>
                 <ul>
-                    <li>Stability Check = False</li>
-                    <li>Number of roots on the LHS = 4</li>
-                    <li>Number of roots on the RHS = 0</li>
+                    <li>Stability Check = {{isStable}}</li>
+                    <li>Number of roots on the LHS = {{lhs}}</li>
+                    <li>Number of roots on the RHS = {{rhs}}</li>
                 </ul>
                 <hr>
             </div>
@@ -50,6 +50,52 @@
         </div>
         <div class="div4">
             Designed & Implemented By: Mariam Aziz, David Michael, Patrick Georges, Marshelino Maged & George Beshay.
+        </div>
+    </div>
+    <div class="result">
+        <div>
+            <h2>Forward Paths</h2>
+            <div class="resultsContainer">
+                <div class="resultElement" *ngFor="let fp of FPS">
+                    <p>Path: {{fp[0]}}</p>
+                    <p>Gain: {{fp[1]}}</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Loops</h2>
+            <div class="resultsContainer">
+                <div class="resultElement" *ngFor="let loop of loops">
+                    <p>Loop Path: {{loop[0]}}</p>
+                    <p>Loop Gain: {{loop[1]}}</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Non Touching Loops</h2>
+            <div class="resultsContainer">
+                <div *ngFor="let outerloop of nonTouchingLoops; let i = index">
+                    <p>{{i+2}} Non Touching Loop:</p>
+                    <div class="resultElement" *ngFor="let loop of outerloop">
+                        <p>Loops: {{loop[0]}}</p>
+                        <p>Gain: {{loop[1]}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Deltas</h2>
+            <div class="resultsContainer">
+                <div class="resultElement" *ngFor="let delta of deltas; let i = index">
+                    <p>Delta {{i}}: {{delta}}</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Transfer Function = {{transferFunction}}</h2>
+        </div>
+        <div>
+            <button (click)="closeSolutionWindow()">Close</button>
         </div>
     </div>
 </div>

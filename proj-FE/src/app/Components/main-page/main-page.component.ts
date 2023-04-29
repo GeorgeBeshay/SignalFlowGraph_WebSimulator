@@ -14,6 +14,18 @@ import {ServerCallerService} from "../../Services/server-caller.service";
 })
 export class MainPageComponent {
   // ------------- Separator -------------
+  FPS: any[][] = [];
+  loops: any[][] = [];
+  nonTouchingLoops: any[][][] = [];
+  deltas: number[] = [];
+  transferFunction: number = 0;
+  index: number = 0
+
+  isStable = false;
+  rhs = 0
+  lhs = 0
+
+
   private serverCaller: ServerCallerService;
   private myStage!: Stage;
   private board!: Layer;
@@ -372,24 +384,69 @@ export class MainPageComponent {
   }
 
   // ------------- Separator ------------
-  solveRouth(){
+  async solveRouth(){
     let orderGenerated = document.getElementById('orderGenerated') as HTMLDivElement;
     this.routhArray = [];
     for(let i=0;i<orderGenerated.children.length;i++){
       this.routhArray.push(Number(((orderGenerated.children[i].children[0]) as HTMLInputElement).value));
     }
     console.log(this.routhArray);
-    let result = this.serverCaller.getRouth(this.routhArray);
+    this.rhs = Number(await this.serverCaller.getRouth(this.routhArray));
+    this.lhs = this.routhArray.length-1-this.rhs
+    if(this.rhs > 0)
+      this.isStable = false
+    else
+      this.isStable = true
+    console.log(this.rhs)
   }
   // ------------- Separator ------------
   async solveSFG(){
     console.log(this.edgesList);
     console.log(`System initialized = ` + await this.serverCaller.init_system(this.edgesList, this.currentNodeNumber))
-    let FPS = await this.serverCaller.getFPs();
-    let loops = await this.serverCaller.getLoops();
-    let nonTouchingLoops = await this.serverCaller.getNonTouchingLoops();
-    let deltas = await this.serverCaller.getDeltas();
-    let transferFunction = this.serverCaller.getTf();
-  
+
+    // this.FPS = [
+    //     ["FP1", 5],
+    //     ["FP2", 5],
+    // ]
+
+    // this.loops = [
+    //     ["L1", 5],
+    //     ["L2", 5],
+    // ]
+
+    // this.nonTouchingLoops = [
+    //   [
+    //       ["L1 L2", 10],
+    //       ["L3 L4", 15],
+    //   ],
+    //   [
+    //     ["L7 L8 L9", 10],
+    //     ["L10 L11 L15", 10],
+    //   ]
+    // ]
+
+    // this.deltas = [1, 2, 3, 4]
+
+    // this.transferFunction = 100
+
+    this.FPS = await this.serverCaller.getFPs();
+    this.loops = await this.serverCaller.getLoops();
+    this.nonTouchingLoops = await this.serverCaller.getNonTouchingLoops();
+    this.deltas = await this.serverCaller.getDeltas();
+    this.transferFunction = Number(await this.serverCaller.getTf());
+    
+    console.log(this.FPS)
+    console.log(this.loops)
+    console.log(this.nonTouchingLoops)
+    console.log(this.deltas)
+    
+
+    let temp = document.getElementsByClassName("result")[0] as HTMLDivElement;
+    temp.style.zIndex = '1';
+  }
+  // ------------- Separator ------------
+  closeSolutionWindow(){
+    let temp = document.getElementsByClassName("result")[0] as HTMLDivElement;
+    temp.style.zIndex = '-1';
   }
 }

@@ -346,7 +346,7 @@ public class ControlSystem implements SignalFlowIF{
             System.out.println("System is Unstable");
         else
             System.out.println("System is Stable");
-        System.out.print("Number of right poles = " + rightPoles);
+//        System.out.print("Number of right poles = " + rightPoles);
         return rightPoles;
     }
 

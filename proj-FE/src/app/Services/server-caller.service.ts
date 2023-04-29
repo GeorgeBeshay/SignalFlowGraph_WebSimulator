@@ -25,9 +25,15 @@ export class ServerCallerService {
   }
 
   async getLoops() {
-    return await firstValueFrom(
-      this.http.post<any[][]>(this.url + 'loops', null)
+    let temp = await firstValueFrom(
+      this.http.post<any[]>(this.url + 'loops', null)
     );
+    for(let i = 0 ; i < temp.length ; i++){
+      temp[i] = Object.values(temp[i])
+    }
+    console.log('Heree')
+    console.log(temp)
+    return temp
   }
 
   async getNonTouchingLoops() {
