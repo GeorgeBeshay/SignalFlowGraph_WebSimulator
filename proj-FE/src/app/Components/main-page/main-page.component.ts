@@ -379,10 +379,17 @@ export class MainPageComponent {
       this.routhArray.push(Number(((orderGenerated.children[i].children[0]) as HTMLInputElement).value));
     }
     console.log(this.routhArray);
+    let result = this.serverCaller.getRouth(this.routhArray);
   }
   // ------------- Separator ------------
   async solveSFG(){
     console.log(this.edgesList);
-    console.log(await this.serverCaller.init_system(this.edgesList, this.currentNodeNumber))
+    console.log(`System initialized = ` + await this.serverCaller.init_system(this.edgesList, this.currentNodeNumber))
+    let FPS = await this.serverCaller.getFPs();
+    let loops = await this.serverCaller.getLoops();
+    let nonTouchingLoops = await this.serverCaller.getNonTouchingLoops();
+    let deltas = await this.serverCaller.getDeltas();
+    let transferFunction = this.serverCaller.getTf();
+  
   }
 }

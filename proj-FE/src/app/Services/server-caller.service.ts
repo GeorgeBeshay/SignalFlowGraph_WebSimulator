@@ -11,9 +11,10 @@ export class ServerCallerService {
   constructor(private http: HttpClient) { }
 
   async init_system(edgeList: number[][], numberOfNodes: number){
-    console.log(edgeList[0]);
+    console.log("Initializing system with:")
+    console.log(edgeList);
     return await firstValueFrom(
-      this.http.post<boolean>(this.url + `init/${numberOfNodes}`, [1.5, 2, 3, 4])
+      this.http.post<boolean>(this.url + `init/${numberOfNodes}`, edgeList)
     )
   }
 
@@ -47,9 +48,9 @@ export class ServerCallerService {
     );
   }
 
-  async getRouth() {
+  async getRouth(routhArray: number[]) {
     return await firstValueFrom(
-      this.http.post<number>(this.url + 'routh', null)
+      this.http.post<number>(this.url + 'routh', routhArray)
     );
   }
 
