@@ -1,5 +1,6 @@
 package csCourse.proj;
 
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +15,13 @@ public class RequestsController {
     private SignalFlowIF solver;
 
     @PostMapping(value = {"init/{numberOfNodes}"})
-    public boolean init_system(@PathVariable int numberOfNodes, ArrayList<Double> edgeList){
+    public boolean init_system(@PathVariable int numberOfNodes, @RequestBody double[][] edgeList){
         System.out.println("---------------- Separator ----------------");
         System.out.println("Client Requested to initialize the system");
         // Initializing system solver
-//        this.solver = new ControlSystem(numberOfNodes, edgeList);
-        System.out.println(numberOfNodes);
-        System.out.println(edgeList.toString());
+        this.solver = new ControlSystem(numberOfNodes, edgeList);
+//        System.out.println(numberOfNodes);
+//        System.out.println(edgeList[0][0]);
         return true;
     }
 
