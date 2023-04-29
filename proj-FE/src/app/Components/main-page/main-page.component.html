@@ -75,7 +75,7 @@
             <h2>Non Touching Loops</h2>
             <div class="resultsContainer">
                 <div *ngFor="let outerloop of nonTouchingLoops; let i = index">
-                    <p>{{i+2}} Non Touching Loop:</p>
+                    <p *ngIf="outerloop.length > 0">{{i+2}} Non Touching Loop:</p>
                     <div class="resultElement" *ngFor="let loop of outerloop">
                         <p>Loops: {{loop[0]}}</p>
                         <p>Gain: {{loop[1]}}</p>

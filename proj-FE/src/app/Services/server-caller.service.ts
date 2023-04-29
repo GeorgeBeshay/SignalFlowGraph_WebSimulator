@@ -19,9 +19,14 @@ export class ServerCallerService {
   }
 
   async getFPs() {
-    return await firstValueFrom(
-      this.http.post<any[][]>(this.url + 'fps', null)
+    let temp = await firstValueFrom(
+      this.http.post<any[]>(this.url + 'fps', null)
     );
+    for(let i = 0 ; i < temp.length ; i++){
+      temp[i] = Object.values(temp[i])
+    }
+    console.log(temp)
+    return temp
   }
 
   async getLoops() {
@@ -31,20 +36,26 @@ export class ServerCallerService {
     for(let i = 0 ; i < temp.length ; i++){
       temp[i] = Object.values(temp[i])
     }
-    console.log('Heree')
     console.log(temp)
     return temp
   }
 
   async getNonTouchingLoops() {
-    return await firstValueFrom(
-      this.http.post<any[][][]>(this.url + 'ntLoops', null)
+    let temp =  await firstValueFrom(
+      this.http.post<any[][]>(this.url + 'ntLoops', null)
     );
+    for(let i = 0 ; i < temp.length ; i++){
+      for(let j = 0; j<temp[i].length ; j++){
+        temp[i][j] = Object.values(temp[i][j])
+      }
+    }
+    console.log(temp)
+    return temp
   }
 
   async getDeltas() {
     return await firstValueFrom(
-      this.http.post<number[]>(this.url + 'ntLoops', null)
+      this.http.post<number[]>(this.url + 'deltas', null)
     );
   }
 

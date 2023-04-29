@@ -146,5 +146,5 @@ div.result {
     display: flex;
 }
 .resultsContainer .resultElement p{
-    margin-inline: 5px;
+    margin-right: 5px;
 }

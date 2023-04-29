@@ -435,9 +435,9 @@ export class MainPageComponent {
     this.deltas = await this.serverCaller.getDeltas();
     this.transferFunction = Number(await this.serverCaller.getTf());
     
-    console.log(this.FPS)
-    console.log(this.loops)
-    console.log(this.nonTouchingLoops)
+    // console.log(this.FPS)
+    // console.log(this.loops)
+    // console.log(this.nonTouchingLoops)
     console.log(this.deltas)
     
 
