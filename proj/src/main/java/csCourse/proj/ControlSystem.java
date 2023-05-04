@@ -1,7 +1,5 @@
 package csCourse.proj;
 import org.springframework.stereotype.Service;
-
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -22,13 +20,21 @@ public class ControlSystem implements SignalFlowIF{
         this.vertices = vertices;
         // Graph adjacency list initialization
         int from,to;
+        boolean exists;
         graph = new ArrayList[vertices];
         for (int i=0 ; i<vertices ; i++) graph[i] = new ArrayList<>();
 
         for (double[] edge : edgeList) {
             from = (int) Math.round(edge[0]);
             to = (int) Math.round(edge[1]);
-            graph[from].add(new Edge(to, edge[2]));
+            exists = false;
+            for(Edge e : graph[from]){
+                if (e.to == to) {
+                    e.gain += edge[2];
+                    exists = true;
+                }
+            }
+            if(!exists) graph[from].add(new Edge(to, edge[2]));
         }
 
         /** We could initialize the forward paths using registerPaths method here */
@@ -51,15 +57,15 @@ public class ControlSystem implements SignalFlowIF{
         t.addNode(s);
         for (Edge edge : this.graph[s]) {
             if( (edge.to != e) && !(t.containsNode(edge.to)) ){
-                t.multiplyGain(edge.weight);
+                t.multiplyGain(edge.gain);
                 recursiveForwardPaths(edge.to, e);
-                t.divideGain(edge.weight);
+                t.divideGain(edge.gain);
             }
             else if (edge.to == e) {
                 t.addNode(e);
-                t.multiplyGain(edge.weight);
+                t.multiplyGain(edge.gain);
                 this.paths.add(t.clone());
-                t.divideGain(edge.weight);
+                t.divideGain(edge.gain);
                 t.removeNode(e);
             }
         }
@@ -92,18 +98,18 @@ public class ControlSystem implements SignalFlowIF{
         t.addNode(s);
         for (Edge edge : this.graph[s]) {
             if( (edge.to != e) && !(t.containsNode(edge.to)) ){
-                t.multiplyGain(edge.weight);
+                t.multiplyGain(edge.gain);
                 recursiveLoops(edge.to, e);
-                t.divideGain(edge.weight);
+                t.divideGain(edge.gain);
             }
             else if (edge.to == e) {
                 if(checkIfExist(t.getNodes().toString())){continue;}
-                t.multiplyGain(edge.weight);
+                t.multiplyGain(edge.gain);
                 t.addNode(e); // Add the node we got back to to the list
                 this.loops.add(t.clone());
                 t.getNodes().remove(t.getNodes().size()-1); // Remove the node again to ensure correctness
                 this.loopsStrings.add(t.getNodes().toString());
-                t.divideGain(edge.weight);
+                t.divideGain(edge.gain);
             }
         }
         t.removeNode(s);

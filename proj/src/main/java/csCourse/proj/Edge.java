@@ -2,10 +2,10 @@ package csCourse.proj;
 
 public class Edge {
     int to;
-    double weight;
+    double gain;
 
-    public Edge(int to, Double weight) {
+    public Edge(int to, double gain) {
         this.to = to;
-        this.weight = weight;
+        this.gain = gain;
     }
 }
