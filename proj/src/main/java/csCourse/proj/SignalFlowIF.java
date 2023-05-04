@@ -29,7 +29,7 @@ public interface SignalFlowIF {
     //calculate the over all transfer function
     double transferFunction();
 
-    //return the number of the solutions in the right hand side
+    //return the number of the solutions on the right hand side
     // if the system is stable return zero
     int routh(double[] coefficients);
 }
