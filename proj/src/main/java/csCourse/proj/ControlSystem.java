@@ -12,6 +12,8 @@ public class ControlSystem implements SignalFlowIF{
     private ArrayList<Trail> loops = new ArrayList<>();
     private ArrayList<ArrayList<ArrayList<Integer>>> nonTouchingLoops; /** nonTouchingLoops[i] = the indices (in the loops array) of (i+2)-groups non-touching loops */
     private ArrayList<Double> pathDeltas; /** pathDeltas[0] = overall delta, pathDeltas[i] = delta of paths[i] */
+    // Auxiliary helper fields for path & loop finding algorithms
+    private ArrayList<String> loopsStrings = new ArrayList<>();
     private Trail t = new Trail();
 
     public ControlSystem(){}
@@ -37,10 +39,8 @@ public class ControlSystem implements SignalFlowIF{
             if(!exists) graph[from].add(new Edge(to, edge[2]));
         }
 
-        /** We could initialize the forward paths using registerPaths method here */
-        /** We could initialize the individual loops using getLoops method here */
-        /** We could initialize the non-touching loops here */
-        /** We could initialize the path deltas here */
+        // Initialize forward paths, individual loops, combinations of non-touching loops,
+        // overall delta, and delta of each path.
         registerPaths();
         registerLoops();
         nonTouchingLoops = getNonTouchingLoops(this.loops);
@@ -77,7 +77,6 @@ public class ControlSystem implements SignalFlowIF{
         for(int i=1; i<this.vertices-1; i++){ recursiveLoops(i,i);}
     }
 
-    private ArrayList<String> loopsStrings = new ArrayList<>();
     private boolean checkIfExist(String str){
         boolean flag;
         for (String exist: this.loopsStrings) {
@@ -89,7 +88,7 @@ public class ControlSystem implements SignalFlowIF{
                         break;
                     }
                 }
-                if(flag == false){return true;}
+                if(!flag){return true;}
             }
         }
         return false;
@@ -116,9 +115,9 @@ public class ControlSystem implements SignalFlowIF{
     }
 
     // We can pass two loops or a loop and a path here to see if they are touching or not.
-    private boolean isTouching(Trail t1, Trail t2){
-        for (int node : t1.getNodes()) if (t2.getNodes().contains(node)) return true;
-        return false;
+    private boolean isNotTouching(Trail t1, Trail t2){
+        for (int node : t1.getNodes()) if (t2.getNodes().contains(node)) return false;
+        return true;
     }
 
     /** Method that takes a group of loops and returns the non-touching loop indices in that group */
@@ -136,7 +135,7 @@ public class ControlSystem implements SignalFlowIF{
                 // Add all non-touching pairs
                 for(i=0 ; i<size-1 ; i++){
                     for (j=i+1 ; j<size ; j++){
-                        if(!isTouching(loops.get(i),loops.get(j))){
+                        if(isNotTouching(loops.get(i), loops.get(j))){
                             NTL.get(0).add(new ArrayList<>(Arrays.asList(i,j)));
                             k++;
                             done = false;
@@ -174,10 +173,10 @@ public class ControlSystem implements SignalFlowIF{
     }
 
     private boolean hasPairs(int test, ArrayList<ArrayList<Integer>> pairs, ArrayList<Integer> group){
-        /**
-         * testing an element test, we want to look through the group and non-touching pairs
-         * we will get element i of the group, if there are no pairs with test & element i, we will return false
-         * if there is indeed a pair the iteration passes, and we look for a pair of test with the next element.
+        /*
+          testing an element test, we want to look through the group and non-touching pairs
+          we will get element i of the group, if there are no pairs with test & element i, we will return false
+          if there is indeed a pair the iteration passes, and we look for a pair of test with the next element.
          */
         boolean noMatches;
         for(int i : group){
@@ -213,7 +212,7 @@ public class ControlSystem implements SignalFlowIF{
             if(path != null){
                 loopsNotTouchingPath.clear();
                 for(Trail loop : loops){
-                    if (!isTouching(path,loop)) loopsNotTouchingPath.add(loop);
+                    if (isNotTouching(path, loop)) loopsNotTouchingPath.add(loop);
                 }
                 if(nonTouchingExists) nonTouchingLoopsOfPath = getNonTouchingLoops(loopsNotTouchingPath);
             }
@@ -270,19 +269,19 @@ public class ControlSystem implements SignalFlowIF{
         }
         // nonTouching[i] = a list of groups of i+2 non-touching loops.
         ArrayList<ArrayList<Pair<String,Double>>> nonTouching = new ArrayList<>();
-        String group;
+        StringBuilder group;
         double product;
         int index = 0;
         for(ArrayList<ArrayList<Integer>> nLoopGroups : nonTouchingLoops){
             nonTouching.add(new ArrayList<>());
             for (ArrayList<Integer> nLoopGroup : nLoopGroups){
-                group = "";
+                group = new StringBuilder();
                 product = 1;
                 for(int loopIndex : nLoopGroup){
-                    group += "L" + loopIndex;
+                    group.append("L").append(loopIndex);
                     product *= loops.get(loopIndex).getGain();
                 }
-                nonTouching.get(index).add(new Pair<>(group, product));
+                nonTouching.get(index).add(new Pair<>(group.toString(), product));
             }
             index++;
         }
@@ -352,7 +351,6 @@ public class ControlSystem implements SignalFlowIF{
             System.out.println("System is Unstable");
         else
             System.out.println("System is Stable");
-//        System.out.print("Number of right poles = " + rightPoles);
         return rightPoles;
     }
 
