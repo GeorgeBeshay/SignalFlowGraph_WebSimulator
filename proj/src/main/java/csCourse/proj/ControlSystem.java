@@ -353,48 +353,4 @@ public class ControlSystem implements SignalFlowIF{
             System.out.println("System is Stable");
         return rightPoles;
     }
-
-    public static void main(String[] args) {
-        double[][] edges = {
-                {0,1,1},
-                {1,2,3.2},
-                {1,3,4.2},
-                {1,6,7.2},
-                {2,1,-2.3},
-                {2,3,4.3},
-                {3,2,-3.4},
-                {3,4,5.4},
-                {4,3,-4.5},
-                {4,5,6.5},
-                {5,4,-5.6},
-                {5,6,7.6},
-                {6,7,1},
-                {6,6,-7.7},
-                {6,4,-5.7},
-                {6,5,-6.7}
-        };
-
-        ControlSystem sys = new ControlSystem(8, edges);
-        ArrayList<Pair<String,Double>> tpaths = sys.forwardPaths();
-        ArrayList<Pair<String,Double>> tloops = sys.loops();
-        ArrayList<ArrayList<Pair<String,Double>>> ntl = sys.nonTouchingLoops();
-        ArrayList<Double> tdeltas = sys.delta();
-        double tf = sys.transferFunction();
-        System.out.println("Forward paths:");
-        for(Pair<String,Double> path : tpaths){
-            System.out.println(path.getKey() + " , Gain = " + path.getValue());
-        }
-        System.out.println("Loops:");
-        for(Pair<String,Double> loop : tloops){
-            System.out.println(loop.getKey() + " , Gain = " + loop.getValue());
-        }
-        System.out.println("Non touching loops:");
-        for(int i=0 ; i< ntl.size() ; i++){
-            System.out.println("Groups of " + (i+2) + " Non-touching loops:");
-            for(Pair<String,Double> group : ntl.get(i))
-                System.out.println(group.getKey() + " , Product = " + group.getValue());
-        }
-        System.out.println("Deltas: " + tdeltas);
-        System.out.println("Transfer function = " + tf);
-    }
 }
