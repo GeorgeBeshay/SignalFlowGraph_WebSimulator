@@ -6,6 +6,8 @@ import { Stage } from 'konva/lib/Stage';
 import {State} from "../../Interfaces/state";
 import {HttpClient} from "@angular/common/http";
 import {ServerCallerService} from "../../Services/server-caller.service";
+import { Group } from 'konva/lib/Group';
+import { Arrow } from 'konva/lib/shapes/Arrow';
 
 @Component({
   selector: 'app-main-page',
@@ -37,6 +39,7 @@ export class MainPageComponent {
   private undoStates: State[] = [];
   private redoStates: State[] = [];
   private currentState!: State;
+  private myMap: Map<number[], number> = new Map<number[], number>();
   // private currentState: {
   //   edgesList: number[][],
   //   board: Layer,
@@ -113,6 +116,67 @@ export class MainPageComponent {
     this.currentNodeNumber = newState.currentNodeNumber;
     this.upDown = newState.upDown;
     this.routhArray = newState.routhArray
+    console.log("---------------- Here")
+    if(this.myStage != undefined && this.myStage.children != undefined)
+      if(this.myStage.children[0].children != undefined)
+        for(let i = 0 ; i < this.myStage.children[0].children.length ; i++){
+          let temp = (<Group>this.myStage.children[0].children[i]).children
+          if(temp != undefined && temp[0] instanceof Konva.Arrow){
+            // console.log(temp)
+            let textNode: Konva.Text = <Konva.Text>temp[1]
+            let thisExtender = this
+            let index: number = -1
+            let tempVar = this.myMap.get((<Konva.Arrow>temp[0]).getAttr('points'))
+            if(tempVar != undefined) 
+              index = tempVar
+
+            textNode.on('dblclick dbltap', () => {
+              // create textarea over canvas with absolute position
+        
+              // first we need to find position for textarea
+              // how to find it?
+        
+              // at first lets find position of text node relative to the stage:
+              var textPosition = textNode.getAbsolutePosition();
+        
+              // then lets find position of stage container on the page:
+              var stageBox = this.myStage.container().getBoundingClientRect();
+        
+              // so position of textarea will be the sum of positions above:
+              var areaPosition = {
+                x: stageBox.left + textPosition.x,
+                y: stageBox.top + textPosition.y,
+              };
+        
+              // create textarea and style it
+              var textarea = document.createElement('input');
+              document.body.appendChild(textarea);
+        
+              textarea.value = textNode.text();
+              textarea.style.position = 'absolute';
+              textarea.style.top = areaPosition.y + 'px';
+              textarea.style.left = areaPosition.x + 'px';
+              textarea.style.width = '50px';
+              textarea.style.height = '30px';
+              textarea.style.padding = '5px';
+              textarea.type = 'number';
+              textarea.focus();
+        
+              textarea.addEventListener('mouseleave', function (e) {
+                  console.log(textarea.value)
+                  console.log("Edges List !!!!!!!!!!")
+                  console.log(thisExtender.edgesList)
+                  console.log(index)
+                  textNode.text(textarea.value);
+                  document.body.removeChild(textarea);
+                  thisExtender.edgesList[index][2] = Number(textarea.value);
+                  console.log(thisExtender.edgesList);
+                  thisExtender.updateState();
+              });
+            });
+
+          }
+        }
   }
   // ------------- Separator -------------
   undoState(){
@@ -260,6 +324,10 @@ export class MainPageComponent {
         tension: 0.5,
       })
     )
+    console.log(a)
+    if(a.children != undefined)
+      this.myMap.set(a.children[0].getAttr('points'), index)
+    console.log(this.myMap)
     var textNode = new Konva.Text({
       text: '1',
       x: x1 + (x2 - x1) / 2,
@@ -309,7 +377,7 @@ export class MainPageComponent {
 
     a.add(textNode);
     this.board.add(a);
-    // this.updateState();
+    this.updateState();
   }
   // ------------- Separator -------------
   addEdge(from: string, to: string, weight: string){

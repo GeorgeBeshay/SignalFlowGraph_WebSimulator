@@ -339,7 +339,11 @@ public class ControlSystem implements SignalFlowIF{
                 }
             }
         }
-
+        System.out.println("Routh");
+        for (double[] doubles : table) {
+            for (double aDouble : doubles) System.out.println(aDouble + " ");
+            System.out.println();
+        }
         int rightPoles = 0;
         for (int i = 0; i < len - 1; i++) {
             if ((table[i][0] * table[i + 1][0]) < 0) {
